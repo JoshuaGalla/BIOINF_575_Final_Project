@@ -10,6 +10,6 @@ In conjunction with evaluating the accuracy score of correctly identifying lung 
 
 # **Data:**
 
-The data used in this project - a SOFT formatted family file "GSE10245_RAW.tar" - can be found from the Gene Expression Omnibus (GEO) link here: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE10245. 
+The data used in this project - a SOFT formatted family file "GSE10245_RAW.tar" - can be found from the Gene Expression Omnibus (GEO) link [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE10245). 
 
 The file contains 58 samples total (40 AD and 18 SCC) and 54,675 genes with corresponding expression values for each respective sample.
