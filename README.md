@@ -4,7 +4,7 @@ Repository for BIOINF 575 final project.
 
 # **Project Overview:**
 
-The goal of this project (described and executed in the file `BIOINF575_FinalProject.ipynb`) is to evaluate a mathematical model from scikit-learn to discriminate between two cancer subtypes: adenocarcinoma and squamous cell carcinoma. 
+The goal of this project (described and executed in the file `analysis/BIOINF575_FinalProject.ipynb`) is to evaluate a mathematical model from scikit-learn to discriminate between two cancer subtypes: adenocarcinoma and squamous cell carcinoma. 
 
 In conjunction with evaluating the accuracy score of correctly identifying lung cancer types, further biological relevance is examined by calculating the statistical significance of gene expression value differences between the two subtypes and cross-validating potential biomarkers with published literature.
 
