@@ -1,0 +1,6 @@
+data:
+  raw_data_path: "./GSE10245_family.soft.gz"
+  seed: 42
+
+clusters:
+  k: 2
