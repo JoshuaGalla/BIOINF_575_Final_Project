@@ -17,7 +17,7 @@ def load_GSE(gse_file, metadata):
         metadata (dataframe): dataframe of misc. metadata associated with each GSM sample contained in gse_file
 
     Returns:
-        gene_expression_df (dataframe): dataframe of each GSM sample within the GSE file and its respective expression value per gene
+        gene_expr_df (dataframe): dataframe of each GSM sample within the GSE file and its respective expression value per gene
         cancer_type_df (dataframe): dataframe of each GSM sample and its corresponding cancer subtype
     """
     
@@ -30,23 +30,23 @@ def load_GSE(gse_file, metadata):
         
         #create empty dataframe with range of total gene IDs and column headers
         col_id = gse_file.gsms['GSM258562'].table["ID_REF"]
-        gene_expression_df = pd.DataFrame(index=range(0),columns=range(len(col_id)))
-        gene_expression_df.columns = col_id
+        gene_expr_df = pd.DataFrame(index=range(0),columns=range(len(col_id)))
+        gene_expr_df.columns = col_id
         
         #combine gene expression values from each GSM sample to a single dataframe
         for sample in gse_file.gsms.keys():
             gse_table = gse_file.gsms[sample].table
             gse_pivot_table = gse_table.pivot_table(columns = "ID_REF", values = "VALUE")
-            gene_expression_df = pd.concat([gene_expression_df, gse_pivot_table])
+            gene_expr_df = pd.concat([gene_expr_df, gse_pivot_table])
         
         #add GSM sample ID as row header
-        gene_expression_df.index = gse_file.gsms.keys()
+        gene_expr_df.index = gse_file.gsms.keys()
         
         #create supplementary df containing cancer subtype corresponding to each sample ID
         phenotypes = metadata.iloc[:,[0,1]]
         phenotypes["Label"] = ['AC' if "AC" in x else 'SCC' for x in phenotypes['title']]
-        phenotypes["Type"] = ['1' if "AC" in x else '0' for x in phenotypes['title']]
+        phenotypes["Type"] = ['0' if "AC" in x else '1' for x in phenotypes['title']]
         cancer_type_df = pd.DataFrame(data = phenotypes.iloc[:,:])
         cancer_type_df = cancer_type_df.reset_index().drop(columns = ["geo_accession", "title"]).rename(columns = {"index":"sample"})
                     
-    return gene_expression_df, cancer_type_df
+    return gene_expr_df, cancer_type_df

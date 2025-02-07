@@ -1,30 +1,76 @@
 import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 
-def eval_metrics(cluster_sample_df, cluster_val_df):
+
+def cross_validate(gene_expr_df, cancer_type_df, k, n_folds, seed):
     """
-    Function for manually computing accuracy score of kmeans clustering for cancer subtypes of each GSM sample
+    Function for assigning cluster value to each GSM sample
 
     Args:
-         method (string): "manual" for manual calculation or "scikit" for scikit's accuracy_score calculation of clustering accuracy
+        k (int): # of clusters to be assigned (two by default)
 
     Returns:
-        cluster_acc (float): value as percentage representing clustering accuracy using respectve calculation method
+        cluster_sample_df (dataframe): dataframe containing GSM sample, corresponding cancer subtype, and custer value assigned by scikit kmeans clustering
+        cluster_val_df (dataframe): dataframe containing GSM sample and the assigned clustering value from scikit kmeans clustering
     """
 
-    #assigning cluster val to respective cancer subtype
-    cluster_sample_df['cluster'] = cluster_sample_df['Type'].apply(lambda x: 1 if "Adenocarcinoma" in x else 0 if "Squamous Cell Carcinoma" in x else -1)
-    #print(cluster_sample_df)
+    #initialize metrics
+    acc_list, prec_list, recall_list, f1_list, auc_list = [], [], [], [], []
 
-    #merging dataframes to compare actual cluster of cancer type (correct cluster) to predicted cluster group (predicted cluster)
-    cluster_comparison = cluster_val_df.merge(cluster_sample_df, left_on = "sample", right_on = "sample")
-    cluster_comparison = cluster_comparison.rename(columns = {"cluster_x":"predicted cluster", "cluster_y":"correct cluster"})
+    #define cross-validation split
+    cross_val = StratifiedKFold(n_splits = n_folds, shuffle=True, random_state=seed)
 
-    #compute eval metrics using scikit-learn
-    acc = float(accuracy_score(cluster_comparison["predicted cluster"], cluster_comparison["correct cluster"]))*100
-    prec = float(precision_score(cluster_comparison["predicted cluster"], cluster_comparison["correct cluster"]))*100
-    recall = float(recall_score(cluster_comparison["predicted cluster"], cluster_comparison["correct cluster"]))*100
-    f1 = float(f1_score(cluster_comparison["predicted cluster"], cluster_comparison["correct cluster"]))*100
-    auc = float(roc_auc_score(cluster_comparison["predicted cluster"], cluster_comparison["correct cluster"]))*100
-        
-    return acc, prec, recall, f1, auc, cluster_sample_df
+    #edit data to only contain expression values and labels
+    gene_expr_df = gene_expr_df.values
+    cancer_type_df = cancer_type_df['Type']
+
+    #calculate performance metrics for each cross-validation fold (80/20 split)
+    for train_idx, val_idx in cross_val.split(gene_expr_df, cancer_type_df):
+        gene_expr_train, gene_expr_val = gene_expr_df[train_idx], gene_expr_df[val_idx]
+        cancer_type_train, cancer_type_val = cancer_type_df.iloc[train_idx], cancer_type_df.iloc[val_idx]
+
+        #train kmeans on expression data from training data subset
+        kmeans = KMeans(n_clusters = k, random_state=seed)
+        kmeans.fit(gene_expr_train)
+
+        #predict on validation subset
+        cancer_type_pred = kmeans.predict(gene_expr_val)
+        cancer_type_val = cancer_type_val.astype(int)
+
+        #cancer_type_map = (cancer_type_pred == cancer_type_pred[cancer_type_val == 1])
+        #print(cancer_type_map)
+
+        #calculate metrics
+        acc, prec, recall, f1, auc = eval_metrics(cancer_type_val, cancer_type_pred)
+
+        #add metric from fold to list of values
+        acc_list.append(acc)
+        prec_list.append(prec)
+        recall_list.append(recall)
+        f1_list.append(f1)
+        auc_list.append(auc)
+
+    return acc_list, prec_list, recall_list, f1_list, auc_list
+
+def eval_metrics(label_true, label_pred):
+    """
+    """
+
+    #compute individual metrics for given fold
+    acc = accuracy_score(label_true, label_pred)
+
+    if acc <= 0.50: #map correctly predicted clusters to cancer type label (AC=0, SCC=1) using majority voting to avoid arbitrary cluster label flipping (<0.50)
+        acc = 1-acc
+        prec = 1 - precision_score(label_true, label_pred)
+        recall = 1 - recall_score(label_true, label_pred)
+        f1 = 1 - f1_score(label_true, label_pred)
+        auc = 1 - roc_auc_score(label_true, label_pred)
+    else:
+        prec = precision_score(label_true, label_pred)
+        recall = recall_score(label_true, label_pred)
+        f1 = f1_score(label_true, label_pred)
+        auc = roc_auc_score(label_true, label_pred)
+
+    return acc, prec, recall, f1, auc
