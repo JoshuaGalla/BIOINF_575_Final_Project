@@ -3,4 +3,5 @@ data:
   seed: 42
 
 clusters:
-  k: 2
+  k: 2 #for kmeans
+  n_folds: 5 #for cross validation
