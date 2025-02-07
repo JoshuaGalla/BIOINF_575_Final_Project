@@ -1,8 +1,8 @@
 import yaml
 from analysis.process_data import load_data
 from analysis.process_data import load_GSE
-from analysis.cluster_data import assign_cluster
-from analysis.compute_metrics import eval_metrics
+from analysis.compute_metrics import cross_validate
+from analysis.plot_metrics import metrics_plot
 
 def main():
     #load data path
@@ -16,19 +16,23 @@ def main():
     gse_file, metadata = load_data(raw_data_path)
 
     #assign gene expression data to samples
-    gene_expression_df, cancer_type_df = load_GSE(gse_file, metadata)
-    print("Total samples loaded:", len(gene_expression_df))
-    #print(cancer_type_df)
-    #print(gene_expression_df)
+    gene_expr_df, cancer_type_df = load_GSE(gse_file, metadata)
+    print("Total samples loaded:", len(gene_expr_df))
 
     #load k (number of clusters) and perform clustering on samples based on subtype label
     k = params['clusters']['k']
-    cluster_sample_df, cluster_val_df = assign_cluster(gse_file, gene_expression_df, cancer_type_df, k, seed)
-    #print(cluster_val_df)
+    n_folds = params['clusters']['n_folds']
+    acc_list, prec_list, recall_list, f1_list, auc_list = cross_validate(gene_expr_df, cancer_type_df, k, n_folds, seed)
 
-    #computing clustering metrics
-    #acc, prec, recall, f1, auc = eval_metrics(cluster_sample_df, cluster_val_df)
-    #print("Clustering metrics:", acc, prec, recall, f1, auc)
+    #plot metrics for each fold and average
+    avgs = metrics_plot(acc_list, prec_list, recall_list, f1_list, auc_list, n_folds)
+    
+    print(f'Metric avgs across {n_folds} folds:')
+    print("Accuracy:", round(avgs[0], 2))
+    print("Precision:", round(avgs[1], 2))
+    print("Recall:", round(avgs[2], 2))
+    print("f1 score:", round(avgs[3], 2))
+    print("ROC_AUC score:", round(avgs[4], 2))
 
 if __name__ == '__main__':
     main()
