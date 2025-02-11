@@ -27,14 +27,14 @@ def main():
     acc_list, prec_list, recall_list, f1_list, auc_list = cross_validate(gene_expr_df, cancer_type_df, k, n_folds, seed)
 
     #plot metrics for each fold and average
-    #avgs = metrics_plot(acc_list, prec_list, recall_list, f1_list, auc_list, n_folds)
+    avgs = metrics_plot(acc_list, prec_list, recall_list, f1_list, auc_list, n_folds)
     
-    #print(f'Metric avgs across {n_folds} folds:')
-    #print("Accuracy:", round(avgs[0], 2)) #overall correctness of predicitions
-    #print("Precision:", round(avgs[1], 2)) #
-    #print("Recall:", round(avgs[2], 2))
-    #print("f1 score:", round(avgs[3], 2))
-    #print("ROC_AUC score:", round(avgs[4], 2))
+    print(f'Metric avgs across {n_folds} folds:')
+    print("Accuracy:", round(avgs[0], 2)) #overall correctness of predicitions
+    print("Precision:", round(avgs[1], 2)) #
+    print("Recall:", round(avgs[2], 2))
+    print("f1 score:", round(avgs[3], 2))
+    print("ROC_AUC score:", round(avgs[4], 2))
 
     #calculate mean gene expression differences between cancer types
     sort = params['genes']['sort']
