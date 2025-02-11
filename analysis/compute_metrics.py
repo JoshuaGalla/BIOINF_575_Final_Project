@@ -38,9 +38,6 @@ def cross_validate(gene_expr_df, cancer_type_df, k, n_folds, seed):
         cancer_type_pred = kmeans.predict(gene_expr_val)
         cancer_type_val = cancer_type_val.astype(int)
 
-        #cancer_type_map = (cancer_type_pred == cancer_type_pred[cancer_type_val == 1])
-        #print(cancer_type_map)
-
         #calculate metrics
         acc, prec, recall, f1, auc = eval_metrics(cancer_type_val, cancer_type_pred)
 
