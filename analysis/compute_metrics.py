@@ -3,7 +3,6 @@ from sklearn.cluster import KMeans
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 
-
 def cross_validate(gene_expr_df, cancer_type_df, k, n_folds, seed):
     """
     Function for assigning cluster value to each GSM sample
