@@ -1,22 +1,28 @@
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 def cross_validate(gene_expr_df, cancer_type_df, k, n_folds, seed):
     """
-    Function for assigning cluster value to each GSM sample
+    Assigns kmeans cluster value to each cross-validated GSM training sample subset and initializes performance metrics
 
     Args:
-        k (int): # of clusters to be assigned (two by default)
+        gene_expr_df (df): pandas df containing sample ID and gene expression values
+        cancer_type_df (df): pandas df containing sample ID and cancer type label
+        n_folds (int): number of folds/data splits to use for cross-validation
+        k (int): number of clusters to be assigned during kmeans
+        seed (int): set value for kmeans cluster initialization
 
     Returns:
-        cluster_sample_df (dataframe): dataframe containing GSM sample, corresponding cancer subtype, and custer value assigned by scikit kmeans clustering
-        cluster_val_df (dataframe): dataframe containing GSM sample and the assigned clustering value from scikit kmeans clustering
+        acc_list (list): list of model predicition accuracies for each dataset fold after kmeans
+        prec_list (list): list of model predicition precision values for each dataset fold after kmeans
+        recall_list (list): list of model predicition recall values for each dataset fold after kmeans
+        f1_list (list): list of model predicition f1 scores for each dataset fold after kmeans
     """
 
     #initialize metrics
-    acc_list, prec_list, recall_list, f1_list, auc_list = [], [], [], [], []
+    acc_list, prec_list, recall_list, f1_list = [], [], [], []
 
     #define cross-validation split
     cross_val = StratifiedKFold(n_splits = n_folds, shuffle=True, random_state=seed)
@@ -39,34 +45,43 @@ def cross_validate(gene_expr_df, cancer_type_df, k, n_folds, seed):
         cancer_type_val = cancer_type_val.astype(int)
 
         #calculate metrics
-        acc, prec, recall, f1, auc = eval_metrics(cancer_type_val, cancer_type_pred)
+        acc, prec, recall, f1 = eval_metrics(cancer_type_val, cancer_type_pred)
 
         #add metric from fold to list of values
         acc_list.append(acc)
         prec_list.append(prec)
         recall_list.append(recall)
         f1_list.append(f1)
-        auc_list.append(auc)
 
-    return acc_list, prec_list, recall_list, f1_list, auc_list
+    return acc_list, prec_list, recall_list, f1_list
 
 def eval_metrics(label_true, label_pred):
     """
+    Calculates performance metrics for each data subset label predicted by kmeans
+
+    Args:
+        label_true (list): list of ints representing true cancer type labels for given sample
+        label_pred (list): list of ints representing kmeans predicted cancer type labels for given sample
+
+    Returns:
+        acc (float): model predicition accuracy for given dataset fold after kmeans
+        prec (float): model predicition precision value for given dataset fold after kmeans
+        recall (float): model predicition recall values for given dataset fold after kmeans
+        f1 (float): model predicition f1 scores for given dataset fold after kmeans
     """
 
     #compute individual metrics for given fold
     acc = accuracy_score(label_true, label_pred)
 
-    if acc <= 0.50: #map correctly predicted clusters to cancer type label (AC=0, SCC=1) using majority voting to avoid arbitrary cluster label flipping (<0.50)
-        acc = 1-acc
-        prec = 1 - precision_score(label_true, label_pred)
-        recall = 1 - recall_score(label_true, label_pred)
-        f1 = 1 - f1_score(label_true, label_pred)
-        auc = 1 - roc_auc_score(label_true, label_pred)
+    #map correctly predicted clusters to cancer type label (AC=0, SCC=1) using majority voting to avoid arbitrary cluster label flipping (<0.50)
+    if acc <= 0.50: 
+        acc = 1-acc #overall correctness of label
+        prec = 1 - precision_score(label_true, label_pred) #correct labeling of specific class
+        recall = 1 - recall_score(label_true, label_pred) #correct labeling of true positives
+        f1 = 1 - f1_score(label_true, label_pred) #balance between prec and recall - measures false positives and false negatives
     else:
         prec = precision_score(label_true, label_pred)
         recall = recall_score(label_true, label_pred)
         f1 = f1_score(label_true, label_pred)
-        auc = roc_auc_score(label_true, label_pred)
 
-    return acc, prec, recall, f1, auc
+    return acc, prec, recall, f1

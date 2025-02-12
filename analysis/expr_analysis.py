@@ -4,6 +4,16 @@ import scipy.stats as stats
 
 def expr_dif(gene_expr_df, cancer_type_df, sort):
     """
+    Reformats gene expression data and calculates mean expression difference for each gene across all samples
+
+    Args:
+        gene_expr_df (dataframe): dataframe of each GSM sample within the GSE file and its respective expression value per gene
+        cancer_type_df (dataframe): dataframe of each GSM sample and its corresponding cancer subtype
+
+    Returns:
+        mean_expr_all_df (df): contains abs expression difference between cancer substypes for each gene
+        AC_expr_df (df): avg gene expression values for all AC cancer samples
+        SCC_expr_df (df): avg gene expression values for all SCC cancer samples
     """
 
     #reformatting gene expression df index column
@@ -38,6 +48,17 @@ def expr_dif(gene_expr_df, cancer_type_df, sort):
 
 def calc_pval(AC_expr_df, SCC_expr_df, alpha, sort, sort_by):
     """
+    Performs t-test and Bonferroni correction for determining statistical significance of mean expression differences between cancer subtypes
+
+    Args:
+        AC_expr_df (df): avg gene expression values for all AC cancer samples
+        SCC_expr_df (df): avg gene expression values for all SCC cancer samples
+        alpha (float): p-value for level of significance (default 0.05 - 95% CI)
+        sort (str): indicates order to list gene expression significance in (ascending or descending)
+        sort_by (str): column to order significant genes in
+
+    Returns:
+        sig_test_df (df): lists all genes and their statistical significance values of expression differences between cancer subtypes
     """
 
     #initialize list for gene expression significance values

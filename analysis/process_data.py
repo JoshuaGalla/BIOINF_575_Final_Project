@@ -3,18 +3,30 @@ import GEOparse
 import warnings
 
 def load_data(raw_data_path):
+    """
+    Loads in raw GEO data and metadata from provided datapath
+
+    Args:
+        raw_data_path (str): path to GEO dataset defined in params.yaml file - zipped dataset should be located in same directory as run_model.py
+
+    Returns:
+        gse_file (GEOparse.GSE): series of all 58 GSM samples
+        metadata (dataframe): pandas df containing sample ID, GEO accession ID, total gene #, etc.
+    """
+
     #load sample and metadata
     gse_file = GEOparse.get_GEO(filepath=raw_data_path)
     metadata = gse_file.phenotype_data;
+
     return gse_file, metadata
 
 def load_GSE(gse_file, metadata):
     """
-    Function for matching gene expression values for each respective GSM sample loaded from raw GSE data and metadata
+    Function for matching and labeling gene expression values for each respective GSM sample loaded from raw GSE data and metadata
 
     Args:
-        gse_file (series): filepath of zipped GSE file to be analyzed
-        metadata (dataframe): dataframe of misc. metadata associated with each GSM sample contained in gse_file
+        gse_file (GEOparse.GSE): series of all 58 GSM samples
+        metadata (dataframe): pandas df containing sample ID, GEO accession ID, total gene #, etc.
 
     Returns:
         gene_expr_df (dataframe): dataframe of each GSM sample within the GSE file and its respective expression value per gene
