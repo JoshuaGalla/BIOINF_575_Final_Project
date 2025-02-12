@@ -17,7 +17,7 @@ The data used in this project - a SOFT formatted family file *GSE10245_RAW.tar* 
 The file contains 58 samples total (40 AC and 18 SCC) and 54,675 genes with corresponding expression values for each respective sample.
 
 The zipped dataset mentioned in the __Data__ section above should be downloaded and moved to this directory. The dataset should be located at the same level as this _README.md_ file and the *run_model.py* script. See below for an example:
-
+```
 --NSCLCEval
     |--analysis
         |--...
@@ -29,7 +29,7 @@ The zipped dataset mentioned in the __Data__ section above should be downloaded 
     |--README.md
     |--requirements.txt
     |--run_model.py
-
+```
 # **Running the Model:**
 
 To run the mode, navigate to this directory and enter the following:
