@@ -33,6 +33,7 @@ The zipped dataset mentioned in the __Data__ section above should be downloaded 
 # **Running the Model:**
 
 To run the mode, navigate to this directory and enter the following:
+
 `python run_model.py`
 
 Parameters for adjusting the dataset file path, number of folds for cross-validation, number of significant genes to be displayed, and more can be adjusted in the _params.yaml_ file.
