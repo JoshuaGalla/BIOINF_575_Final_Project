@@ -6,7 +6,17 @@ from analysis.plot_metrics import metrics_plot
 from analysis.expr_analysis import expr_dif, calc_pval
 
 def main():
+    """
+    Runs GEO data preprocessing, model predicition, metric calculation and plotting, and gene expression analysis of provided dataset
+    Args:
+        None
+
+    Returns:
+        None - displays metrics/plots/gene expression values while running
+    """
+
     #load data path
+    print("Reading dataset...")
     with open('parameters/params.yaml', 'r') as file:
         params = yaml.safe_load(file)
 
@@ -24,17 +34,16 @@ def main():
     #load k (number of clusters) and perform clustering on samples based on subtype label
     k = params['clusters']['k']
     n_folds = params['clusters']['n_folds']
-    acc_list, prec_list, recall_list, f1_list, auc_list = cross_validate(gene_expr_df, cancer_type_df, k, n_folds, seed)
+    acc_list, prec_list, recall_list, f1_list = cross_validate(gene_expr_df, cancer_type_df, k, n_folds, seed)
 
     #plot metrics for each fold and average
-    avgs = metrics_plot(acc_list, prec_list, recall_list, f1_list, auc_list, n_folds)
+    avgs = metrics_plot(acc_list, prec_list, recall_list, f1_list, n_folds)
     
     print(f'Metric avgs across {n_folds} folds:')
-    print("Accuracy:", round(avgs[0], 2)) #overall correctness of predicitions
-    print("Precision:", round(avgs[1], 2)) #
+    print("Accuracy:", round(avgs[0], 2))
+    print("Precision:", round(avgs[1], 2))
     print("Recall:", round(avgs[2], 2))
     print("f1 score:", round(avgs[3], 2))
-    print("ROC_AUC score:", round(avgs[4], 2))
 
     #calculate mean gene expression differences between cancer types
     sort = params['genes']['sort']
