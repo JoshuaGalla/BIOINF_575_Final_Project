@@ -1,0 +1,13 @@
+data:
+  raw_data_path: "./GSE10245_family.soft.gz" #should be located in same folder as 'run_model.py'
+  seed: 42
+
+clusters:
+  k: 2 #for kmeans
+  n_folds: 5 #for cross validation
+
+genes:
+  n_genes: 20
+  sort: descending #ascending (least significant) or descending (most significant)
+  sort_by: Log p-value #Gene, p-value, Log p-value, Bonferroni p-value, Significant (Bonferroni)
+  alpha: 0.05 #significance level
