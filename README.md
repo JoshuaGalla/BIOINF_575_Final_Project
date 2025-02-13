@@ -32,7 +32,7 @@ The zipped dataset mentioned in the __Data__ section above should be downloaded 
 ```
 # **Running the Model:**
 
-To run the mode, navigate to this directory and enter the following:
+To run the model, navigate to this directory and enter the following:
 
 `python run_model.py`
 
@@ -55,4 +55,4 @@ Prerequisites for running this model are included in the _requirements.txt_ file
 
 # **License:**
 
-This project is licensed under the MIT license. See the LICENSE file/tab for more info.
+This project is licensed under the MIT license. See the _LICENSE_ file/tab for more info.
